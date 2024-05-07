@@ -1,0 +1,7 @@
+CREATE DATABASE IF NOT EXISTS dbs12848931;
+USE dbs12848931;
+CREATE TABLE users(
+    account VARCHAR(50) NOT NULL UNIQUE,
+    last_level_passed TINYINT UNSIGNED,
+    PRIMARY KEY (account)
+);
