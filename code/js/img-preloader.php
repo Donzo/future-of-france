@@ -17,4 +17,16 @@
 		
 		var icnPhantom = new Image();
 		icnPhantom.src = 'media/icons/phantom.png';
+		
+		var icnArbi = new Image();
+		icnArbi.src = 'media/icons/arbitrum.png';
+		
+		var icnOpti = new Image();
+		icnOpti.src = 'media/icons/optimism.png';
+		
+		var icnEthe = new Image();
+		icnEthe.src = 'media/icons/ethereum.png';
+		
+		var signatureGraphic = new Image();
+		signatureGraphic.src = 'media/icons/signature-graphic.png';
 	</script>

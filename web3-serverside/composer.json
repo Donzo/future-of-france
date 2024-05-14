@@ -1,0 +1,13 @@
+{
+    "name": "don-codes/web3-serverside",
+    "description": "A custom project that uses drlecks/simple-web3-php",
+    "type": "project",
+    "require": {
+        "drlecks/simple-web3-php": "^0.10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SWeb3\\": "Core/"
+        }
+    }
+}

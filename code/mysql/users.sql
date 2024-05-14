@@ -2,6 +2,9 @@ CREATE DATABASE IF NOT EXISTS dbs12848931;
 USE dbs12848931;
 CREATE TABLE users(
     account VARCHAR(50) NOT NULL UNIQUE,
-    last_level_passed TINYINT UNSIGNED,
+	signature  VARCHAR(150),
+    current_level TINYINT UNSIGNED,
+    last_level_passed TINYINT UNSIGNED DEFAULT 0,
+    arbi_test_eth_sent BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (account)
 );

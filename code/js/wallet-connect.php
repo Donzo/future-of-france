@@ -8,21 +8,8 @@
 		var chain = false;
 		var chainId = false;
 		var firstConnection = false;
-		
-		function popAlert(which){
-			alert(which);
-		}
-		function popConfirm(which){
-			if (which == 2 || which == 3){
-				var sysMsg = `You must be on the ${preferredNetwork1} to your to play this game. Would you like to switch to ${preferredNetwork1} now?`;
-				if (confirm(sysMsg) == true) {
-					switchNetwork(preferredNetworkSwitchCode);
-				}
-				else{
-					alert(`Ok, but you can't play this game until you connect to this site on the  ${preferredNetwork1}.'`);
-				}
-			}
-		}
+		var alreadyOnNetwork = false;
+
 		async function checkMyConnection(){ //Called at game start to see if player is already connected.
 			
 			try {
@@ -49,6 +36,7 @@
 				console.log('no account num.')
 			}
 		}
+		
 		async function connectMyWallet(){	//Called ingame
 		
 			try {
@@ -70,7 +58,8 @@
 				else if (error.code == -32002){
 					if (firstConnection){
 						ig.game.inspObjTxt = "You already have a pending request. Check your browser wallet.";
-						ig.game.promptBoxOpen = true;
+						ig.game.promptBoxOpen = false;
+						ig.game.objBoxOpen = true;
 					}
 					else{
 						popAlert(3); //Request Pending / Check Wallet
@@ -133,40 +122,48 @@
   		 	}
 			
 			//Get networkName
-			if (chainId == "0xaa36a7" || provider == 11155111){
-  				networkName = "Sepolia";
+			if (chainId == "0xaa36a7" ){
+  				networkName = "Ethereum Sepolia";
   			}	
-			else if (chainId == "0x89" || provider == 137){
+			else if (chainId == "0x89" ){
   				networkName = "Polygon";
   			}	
-			else if (chainId == "0x5" || provider == 5){
+			else if (chainId == "0x5" ){
   				networkName = "Goerli";
   			}
-			else if (chainId == "0xa86a" || provider == 43114){
+			else if (chainId == "0xa86a" ){
 				networkName = "Avalanche";
 			}
-			else if (chainId == "0x1" || provider == 1){
+			else if (chainId == "0x1" ){
   				networkName = "Ethereum";
   			}
-  			else if (chainId == "0x2a" || provider == 42){
+  			else if (chainId == "0x2a" ){
   				networkName = "Kovan";
   			}
-  			else if (chainId == "0x4" || provider == 4){
+  			else if (chainId == "0x4" ){
   				networkName = "Rinkeby";
   			}
-  			else if (chainId == "0xa4b1" || provider == 42161){
+  			else if (chainId == "0xa4b1"){
   				networkName = "Arbitrum";
   			}
-  			else if (chainId == "0x66eed" || provider == 421613){
+  			else if (chainId == "0x66eed" ){
   				networkName = "ArbiGoerli";
   			}
-  			else if (chainId == "0xa869" || provider == 43113){
+  			else if (chainId == "0xa869"){
   				networkName = "Ava Fuji";
   			}
-  			else if (chainId == "0x8274f" || provider == 534351){
+  			else if (chainId == "0x8274f"){
 				//Scroll Sepolia
 				networkName = "Scroll Sepolia";
-			}  			
+			}
+			else if (chainId == "0x66eee"){
+				//Arbitrum Sepolia
+				networkName = "Arbitrum Sepolia";
+			}
+			else if (chainId == "0xaa37dc"){
+				//Arbitrum Sepolia
+				networkName = "OP Sepolia";
+			}
   			else if (window.ethereum){
   		 		networkName = "Unknown Ethereum Network";
 			}
@@ -174,22 +171,12 @@
   				networkName = "unhandled network";
   			}
   			
-  			//console.log('User is on ' + networkName + ' with ID number ' + provider + ' and chainid ' + chainId + '.');
-  			
-  			//This is the preferred chain
-  			if (chainId == preferredNetworkChainID || provider == preferredProviderNumber){
-  				onPreferredNetwork = true;
-  				startCheck();
-			}	
-  			else{
-  				popConfirm(2); //Ask to change network
-  			}
-  			
   			
 		}
-		async function switchNetwork(which){
+		async function switchNetwork(which, where){
 			var theChainID = false;
-			
+			await reportProvider();
+
 			if (which == 1){
 				//Polygon
 				theChainID = '0x89';
@@ -242,8 +229,8 @@
 				//Sepolia
 				theChainID = '0xaa36a7';
 				theRPCURL = 'https://rpc.sepolia.org';
-				nn = "Ethereum Sepolia Testnet";
-				checkAgain();
+				nn = "Ethereum Sepolia";
+				chainId = theChainID;
 			}
 			else if (which == 10){
 				//Avalanche Fuji
@@ -257,12 +244,42 @@
 				theRPCURL = 'https://sepolia-rpc.scroll.io';
 				nn = "Scroll Sepolia";
 			}
+			else if (which == 12){
+				//Arbitrum Sepolia
+				theChainID = '0x66eee';
+				theRPCURL = 'https://sepolia-rollup.arbitrum.io/rpc';
+				nn = "Arbitrum Sepolia";
+				chainId = theChainID;
+				preferredNetwork1 = nn;
+			}
+			else if (which == 13){
+				//OP Sepolia
+				theChainID = '0xaa37dc'; //Chain ID 11155420
+				theRPCURL = 'https://sepolia.optimism.io';
+				nn = "OP Sepolia";
+				chainId = theChainID;
+			}
 			try {
+			
+				alreadyOnNetwork = networkName == nn ? true: false;
+				preferredNetwork1 = nn;
+				preferredNetworkChainID = theChainID;
+				
+				if (where == "game2"){
+					if (alreadyOnNetwork){
+						ig.game.computerDispProgressLine = "You are already connected to " + preferredNetwork1 + ".";
+					}
+					else{
+						ig.game.computerDispProgressLine = "Attempting to connect to " + nn + ".";
+					}
+				}
 					await window.ethereum.request({
 						method: 'wallet_switchEthereumChain',
 						params: [{ chainId: theChainID }],
 					});
-					checkAgain();
+					if (where == "game2"){
+						ig.game.computerDispProgressLine = "You are now connected to " + preferredNetwork1 + ".";
+					}
 					//If On Correct Chain Now, Run the Start Checks To See If User is Signed In
 				} catch (switchError){
   				//This error code indicates that the chain has not been added to MetaMask.
@@ -283,14 +300,36 @@
 						checkAgain();
 					}
 					catch (addError){
-						popConfirm(3); //Ask to change (add) network
+						if (addError.code == 4001 && where == "game2"){
+							ig.game.computerDispProgressLine =  "You declined to connect.";
+						}
 					}
 				}
 				else if (switchError.code == -32002){
-					popAlert(6); //Request Pending / Check Wallet
+					if (where == "game1"){
+						ig.game.inspObjTxt = "You already have a pending request. Check your browser wallet.";
+						ig.game.promptBoxOpen = false;
+						ig.game.objBoxOpen = true;
+					}
+					else if (where == "game2"){
+						ig.game.computerDispProgressLine = "You already have a pending request. Check your browser wallet.";
+					}
+					else {
+						popAlert(6); //Request Pending / Check Wallet
+					}
 				}
 				else if (switchError.code == 4001){
-					popAlert(5); //Connection Declined
+					if (where == "game1"){
+						ig.game.inspObjTxt = "You declined to connect.";
+						ig.game.promptBoxOpen = false;
+						ig.game.objBoxOpen = true;
+					}
+					else if (where == "game2"){
+						ig.game.computerDispProgressLine = "You declined to connect.";
+					}
+					else{	
+						//popAlert(5); //Connection Declined
+					}
 				}
 				else{
 					try {
@@ -306,22 +345,25 @@
 										},
 									}],
 						});
-						checkAgain();
+						if (where == "game2"){
+							if (alreadyOnNetwork){
+								ig.game.computerDispProgressLine = "You are already connected to " + preferredNetwork1 + ".";
+							}
+							else{
+								ig.game.computerDispProgressLine = preferredNetwork1 + " has been added to your wallet. Click the logo again to connect.";
+							}
+						}
+						else{
+							checkAgain();
+						}
 					}
 					catch (addError){
-						popConfirm(3); //Ask to change (add) network
+						if (addError.code == 4001 && where == "game2"){
+							ig.game.computerDispProgressLine =  "You declined to connect.";
+						}
 					}
 				}
 				checkAgain();
-			}
-		}
-		function startCheck(){
-			if (window['userAccountNumber'] && chainId == "0x8274f"){
-				console.log('connected and on the correct network - begin game setup');
-				alert('start game');
-			}
-			else{
-				console.log(`something is wrong maybe chainId = ${chainId} or window['userAccountNumber'] = ${window['userAccountNumber']}`);
 			}
 		}
 		async function checkAgain(){
@@ -330,7 +372,6 @@
 					"method": "eth_chainId",
 					"params": []
 				});
-				startCheck();
   		 	}  		 	
 		}
 	</script>

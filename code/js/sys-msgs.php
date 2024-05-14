@@ -52,7 +52,8 @@
 			document.getElementById("sysMsgBoxBG").style.display = "none";
 			document.getElementById("confirmBox").style.display = "none";
 			if (which == 1){
-				popAlert(1);
+				connectMyWallet(); //Trying to load game but not connected
+				//popAlert(1);
 			}
 			else if (which == 2){
 				//Switch Network to Sepolia
@@ -107,15 +108,16 @@
 		
 			// Default is to close alert but we can set it to other things too.		
 			button.innerHTML = `<button class='button sysMsgButton' onclick="closeAlert()">OK</button>`;
-
+			
+			//Error Loading Game
 			if (num == 1){
-				title.innerHTML = "Alert 1 Called";
-				body.innerHTML = "Alert 1 has been called. Now that alert 1 has been called blah blah blah.";
+				title.innerHTML = "Error Loading Game Data";
+				body.innerHTML = "No game data was found. Are you sure you've made progress in this game from account " + window['userAccountNumber'] + "?";
 			}
 			//You rejected the request to connect.
 			else if (num == 2){
-				title.innerHTML = "Connection Failed";
-				body.innerHTML = "You rejected the request to connect.";
+				title.innerHTML = "Error Fetching Data";
+				body.innerHTML = "There was an error fetching the save data for user " + window['userAccountNumber'] + ". Maybe try again?";
 			}
 			//Request Already Pending
 			else if (num == 3){
@@ -151,6 +153,11 @@
 				title.innerHTML = "Denied Joining Game";
 				body.innerHTML = "Ok well you can join the game whenever you want. Just press the 'Join Game' button.";
 			}
+			//Error Fetching Game Data
+			else if (num == 10){
+				title.innerHTML = "Connection Failed";
+				body.innerHTML = "You rejected the request to connect.";
+			}
 		}
 		function setConfirmMsg(num){
 			var title = document.getElementById("confirmBoxTitle");
@@ -158,11 +165,11 @@
 			var button = document.getElementById("sysConfirmButtonDiv");
 		
 			// Default is to close alert but we can set it to other things too.		
-			button.innerHTML = `<button class='button sysMsgButton' onclick="closeConfirm(1)">Yes</button><button class='button sysMsgButton' onclick="closeConfirm(1)">No</button>`;
+			button.innerHTML = `<button class='button sysMsgButton' onclick="closeConfirm(1)">Yes</button><button class='button sysMsgButton' onclick="closeConfirm(111)">No</button>`;
 
 			if (num == 1){
-				title.innerHTML = "Confirm 1 Called";
-				body.innerHTML = "Confirm 1 has been called. Now that confirm 1 has been called blah blah blah.";
+				title.innerHTML = "You Are Not Connected To This Site";
+				body.innerHTML = "Would you like to try to connect now?";
 			}
 			else if (num == 2){
 				title.innerHTML = "Change Network?";
