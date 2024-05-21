@@ -29,4 +29,7 @@
 		
 		var signatureGraphic = new Image();
 		signatureGraphic.src = 'media/icons/signature-graphic.png';
+		
+		var icnCopy = new Image();
+		icnCopy.src = 'media/icons/copy.png';
 	</script>

@@ -39,13 +39,21 @@
 	<?php
 		//System Messages HTML - Alert Boxes and Such
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/code/html/system-messages.php";
+		
 	?>	
 </body>
 <footer>	
 	<?php
-		//Additional JS
+		//Functions for Interacting with Smart Contracts
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-01.php');
-		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/contract-functions.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-02.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-03.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-04.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-05.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-06.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-07.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/blue-key-token-functions.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/graduation-gift-functions.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/js.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/sys-msgs.php');
 	?>

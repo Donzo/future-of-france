@@ -79,6 +79,13 @@
 			font-size: 1.75em;
 			padding: .5em;
 		}
+		#address-input{
+			width: 90%;
+			height: 2em;
+			font-size: 1.5em;
+			padding: .5em;
+			text-align: center;
+		}
 		.sysMsgBoxButtons{
 			position: absolute;
 			bottom: 20px;

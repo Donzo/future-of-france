@@ -49,6 +49,7 @@
 						ig.game.inspObjTxt = "You declined to connect.";
 						ig.game.promptBoxOpen = false;
 						ig.game.objBoxOpen = true;
+						ig.game.playAlertSound();
 					}
 					else{
 						popAlert(2); //Connection Declined
@@ -60,6 +61,7 @@
 						ig.game.inspObjTxt = "You already have a pending request. Check your browser wallet.";
 						ig.game.promptBoxOpen = false;
 						ig.game.objBoxOpen = true;
+						ig.game.playAlertSound();
 					}
 					else{
 						popAlert(3); //Request Pending / Check Wallet
@@ -67,6 +69,7 @@
 				}
 				else{
 					console.log('Something is wrong with your wallet.');
+					ig.game.playAlertSound();
 				}
 				return;
 			}
@@ -94,6 +97,7 @@
 			else if (!window['userAccountNumber']){
 				ig.game.inspObjTxt = "Something went wrong with the connection.";
 				ig.game.promptBoxOpen = true;
+				ig.game.playAlertSound();
 			}
 			else{
 			
@@ -268,6 +272,7 @@
 				if (where == "game2"){
 					if (alreadyOnNetwork){
 						ig.game.computerDispProgressLine = "You are already connected to " + preferredNetwork1 + ".";
+						ig.game.playAlertSound();
 					}
 					else{
 						ig.game.computerDispProgressLine = "Attempting to connect to " + nn + ".";
@@ -278,6 +283,7 @@
 						params: [{ chainId: theChainID }],
 					});
 					if (where == "game2"){
+						ig.game.playChangeNetworkSound()
 						ig.game.computerDispProgressLine = "You are now connected to " + preferredNetwork1 + ".";
 					}
 					//If On Correct Chain Now, Run the Start Checks To See If User is Signed In
@@ -302,6 +308,7 @@
 					catch (addError){
 						if (addError.code == 4001 && where == "game2"){
 							ig.game.computerDispProgressLine =  "You declined to connect.";
+							ig.game.playAlertSound();
 						}
 					}
 				}
@@ -310,9 +317,11 @@
 						ig.game.inspObjTxt = "You already have a pending request. Check your browser wallet.";
 						ig.game.promptBoxOpen = false;
 						ig.game.objBoxOpen = true;
+						ig.game.playAlertSound();
 					}
 					else if (where == "game2"){
 						ig.game.computerDispProgressLine = "You already have a pending request. Check your browser wallet.";
+						ig.game.playAlertSound();
 					}
 					else {
 						popAlert(6); //Request Pending / Check Wallet
@@ -323,9 +332,11 @@
 						ig.game.inspObjTxt = "You declined to connect.";
 						ig.game.promptBoxOpen = false;
 						ig.game.objBoxOpen = true;
+						ig.game.playAlertSound();
 					}
 					else if (where == "game2"){
 						ig.game.computerDispProgressLine = "You declined to connect.";
+						ig.game.playAlertSound();
 					}
 					else{	
 						//popAlert(5); //Connection Declined
@@ -348,9 +359,11 @@
 						if (where == "game2"){
 							if (alreadyOnNetwork){
 								ig.game.computerDispProgressLine = "You are already connected to " + preferredNetwork1 + ".";
+								ig.game.playAlertSound();
 							}
 							else{
 								ig.game.computerDispProgressLine = preferredNetwork1 + " has been added to your wallet. Click the logo again to connect.";
+								ig.game.playChangeNetworkSound();
 							}
 						}
 						else{
@@ -360,6 +373,7 @@
 					catch (addError){
 						if (addError.code == 4001 && where == "game2"){
 							ig.game.computerDispProgressLine =  "You declined to connect.";
+							ig.game.playAlertSound();
 						}
 					}
 				}

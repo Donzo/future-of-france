@@ -11,6 +11,12 @@
 		$stmt->bindParam(':level', $_POST['level'], PDO::PARAM_INT);
 
 		$stmt->execute();
+		
+		//Insert into blue_coins table, initializing all coins to their default values
+		$insertCoinSql = "INSERT INTO blue_coins (account) VALUES (:account)";
+		$insertCoinStmt = $my_Db_Connection->prepare($insertCoinSql);
+		$insertCoinStmt->bindParam(':account', $_POST['account']);
+		$insertCoinStmt->execute();	
 
 		echo json_encode(["status" => "success"]);
 	}

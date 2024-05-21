@@ -1,4 +1,5 @@
 <script>
+		var miningBoxActive = false;
 		
 		function pauseGame(){
 			ig.game.pause = true;
@@ -7,11 +8,17 @@
 		function unpauseGame(){
 			ig.game.pause = true;
 			console.log('game unpaused')
+			ig.game.resetTxtVars();
 		}
-		function popAlert(which){
+		function popAlert(which, positive){
 			setAlertMsg(which);
 			showAlertBox();
-			
+			if (positive == true){
+				ig.game.playSuccessSound1();
+			}
+			else{
+				ig.game.playAlertSound();	
+			}
 			pauseGame();
 		}
 		function popConfirm(which){
@@ -38,11 +45,18 @@
 			document.getElementById("sysMsgBoxBG").style.display = "block";
 			document.getElementById("alertBox").style.display = "block";
 		}
-		function closeAlert(){
+		function closeAlert(which){
 			document.getElementById("sysMsgBoxBG").style.display = "none";
 			document.getElementById("alertBox").style.display = "none";
-			
+			ig.game.playClickSound1();
+			ig.game.resetTxtVars();
 			unpauseGame();
+			if (which == 1){
+				ig.game.openDoor(12);
+			}
+			else if (which == 2){
+				ig.game.openDoor(11);
+			}
 		}
 		function showConfirmBox(){
 			document.getElementById("sysMsgBoxBG").style.display = "block";
@@ -67,7 +81,7 @@
 				//Add Sepolia
 				switchNetwork(9);
 			}
-			
+			ig.game.playClickSound1();
 			unpauseGame();
 		}
 		function showInputBox(){
@@ -79,6 +93,29 @@
 				var ethValue = document.getElementById('eth-input').value;	
 				depositETHintoAAVE(ethValue);
 			}
+			else if (which == 2){
+				var enteredAddress = document.getElementById('address-input').value;	
+				ig.game.playersEnteredAddress = enteredAddress.toLowerCase();
+				console.log(`window['userAccountNumber'] = ${window['userAccountNumber']} and ig.game.playersEnteredAddress = ${ig.game.playersEnteredAddress}`)
+				if (ig.game.playersEnteredAddress == window['userAccountNumber'].toLowerCase()){
+					popAlert(11, true);
+				}
+				else{
+					popAlert(12, false);
+				}
+			}
+			else if (which == 3){
+				var enteredAddress = document.getElementById('address-input').value;	
+				ig.game.playersEnteredAddress2 = enteredAddress.toLowerCase();
+				console.log(`window['userAccountNumber'] = ${window['userAccountNumber']} and ig.game.playersEnteredAddress2 = ${ig.game.playersEnteredAddress}`)
+				if (ig.game.playersEnteredAddress2 == window['userAccountNumber'].toLowerCase()){
+					popAlert(18, true);
+				}
+				else{
+					popAlert(12, false);
+				}
+			}
+			ig.game.playClickSound2();
 			document.getElementById("sysMsgBoxBG").style.display = "none";
 			document.getElementById("inputBox").style.display = "none";
 		}
@@ -86,9 +123,55 @@
 			document.getElementById("sysMsgBoxBG").style.display = "block";
 			document.getElementById("miningInfoBox").style.display = "block";
 		}
-		function closeMiningBoxBox(){
+		function delayCloseMiningBoxBox(which){
+			if (which == 1 && miningBoxActive == 28){
+				document.getElementById("sysMsgBoxBG").style.display = "none";
+				document.getElementById("miningInfoBox").style.display = "none";
+				unpauseGame();
+				miningBoxActive = false;
+			}
+		}
+		function closeMiningBoxBox(which){
 			document.getElementById("sysMsgBoxBG").style.display = "none";
 			document.getElementById("miningInfoBox").style.display = "none";
+			unpauseGame();
+			if (which == 18){
+				ig.game.openThisDoor = 8; // Open Door 8
+				ig.game.killThisObject = true; // Kill Terminal Interaction Object
+				ig.game.inspObjTxt = "Door opening...";
+				ig.game.promptBoxOpen = false;
+				ig.game.objBoxOpen = true;
+			}
+			if (which == 20){
+				ig.game.openThisDoor = 9; // Open Door 9
+				ig.game.killThisObject = true; // Kill Terminal Interaction Object
+				ig.game.inspObjTxt = "Door opening...";
+				ig.game.promptBoxOpen = false;
+				ig.game.objBoxOpen = true;
+			}
+			if (which == 22){
+				ig.game.inspObjTxt = "Door opening...";
+		        ig.game.openThisDoor = 10; // Open Door 10
+		        ig.game.killThisObject = true;
+		        ig.game.promptBoxOpen = false;
+				ig.game.objBoxOpen = true;
+			}
+			if (which == 24){
+				ig.game.inspObjTxt = "Door opening...";
+		        ig.game.openThisDoor = 11; // Open Door 11
+		        ig.game.killThisObject = true;
+		        ig.game.promptBoxOpen = false;
+				ig.game.objBoxOpen = true;
+			}
+			if (which == 29){
+				ig.game.inspObjTxt = "Door opening...";
+		        ig.game.openThisDoor = 13; // Open Door 13
+		        ig.game.killThisObject = true;
+		        ig.game.promptBoxOpen = false;
+				ig.game.objBoxOpen = true;
+				miningBoxActive = false;
+			}
+			
 		}
 		//setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
 	
@@ -158,6 +241,61 @@
 				title.innerHTML = "Connection Failed";
 				body.innerHTML = "You rejected the request to connect.";
 			}
+			//Successfully Entered Address
+			else if (num == 11){
+				title.innerHTML = "Good News!";
+				body.innerHTML = "You correctly entered your wallet address. You are now ready to get your test Ether";
+			}
+			//Unsuccessfully Entered Address
+			else if (num == 12){
+				title.innerHTML = "Whoops!";
+				body.innerHTML = "Your wallet address is not " + ig.game.playersEnteredAddress + " 🙁 Look around for clues or ask the scientist for help!";
+			}
+			//Didnt Enter Address
+			else if (num == 13){
+				title.innerHTML = "Whoops!";
+				body.innerHTML = "You haven't entered your wallet address. First enter your address into the terminal on the north wall then try again.";
+			}
+			//Eth Receive Failed
+			else if (num == 14){
+				title.innerHTML = "Something Went Wrong!";
+				body.innerHTML = "If you haven't already received test ETH on this account, try again!";
+			}
+			else if (num == 15){
+				title.innerHTML = "Transaction Failed for Some Reason.";
+				body.innerHTML = "Oh no! What do now?";
+			}
+			else if (num == 16){
+				title.innerHTML = "You Rejected the Transaction";
+				body.innerHTML = "Blue Key token will not be purchased for .005 ETH.";
+			}
+			else if (num == 17){
+				title.innerHTML = "Insufficient ETH";
+				body.innerHTML = "You do not have enough ETH to purchase Blue Key token. Oh no! Is this game over?";
+			}
+			//Successfully Entered Address
+			else if (num == 18){
+				title.innerHTML = "You Did It. WTG!";
+				body.innerHTML = "You correctly entered your wallet address. Door opening...";
+				button.innerHTML = `<button class='button sysMsgButton' onclick="closeAlert(1)">OK</button>`;
+			}
+			else if (num == 19){
+				title.innerHTML = "You Rejected the Transaction";
+				body.innerHTML = "Graduation Gift token will not be purchased for .005 ETH.";
+			}
+			else if (num == 20){
+				title.innerHTML = "Insufficient ETH";
+				body.innerHTML = "You do not have enough ETH to mint the Graduation Gift token. Oh no! Is this game over?";
+			}
+			else if (num == 21){
+				title.innerHTML = "You've Already Minted Your Graduation Gift Token";
+				body.innerHTML = "Door Opening...";
+				button.innerHTML = `<button class='button sysMsgButton' onclick="closeAlert(2)">OK</button>`;
+			}
+			else if (num == 22){
+				title.innerHTML = "You Denied the Request";
+				body.innerHTML = "Try again?";
+			}
 		}
 		function setConfirmMsg(num){
 			var title = document.getElementById("confirmBoxTitle");
@@ -213,6 +351,28 @@
 					</div>
 					<div id="eth-submit-button">
 						<button class='button sysMsgButton' onclick="closeInputBox(1)">OK</button>
+					</div>`;
+			}
+			else if (which == 2){
+				title.innerHTML = "Enter Your Wallet Address";
+				body.innerHTML = `Enter your <strong>wallet address</strong> into the input field.`;
+				button.innerHTML = `
+					<div id="address-input-field">
+						<input id="address-input" class="input-field-wide" type="text" maxlength="50" value="" />
+					</div>
+					<div id="address-submit-button">
+						<button class='button sysMsgButton' onclick="closeInputBox(2)">OK</button>
+					</div>`;
+			}
+			else if (which == 3){
+				title.innerHTML = "Enter Your Wallet Address";
+				body.innerHTML = `Enter your <strong>wallet address</strong> into the input field.`;
+				button.innerHTML = `
+					<div id="address-input-field">
+						<input id="address-input" class="input-field-wide" type="text" maxlength="50" value="" />
+					</div>
+					<div id="address-submit-button">
+						<button class='button sysMsgButton' onclick="closeInputBox(3)">OK</button>
 					</div>`;
 			}
 		}
@@ -312,5 +472,118 @@
 				body.innerHTML = `You are now <strong>starting the game</strong>. Once this transaction has mined, we will request a verifiably random number from a Chainlink DON.<br/><br/><strong>Oracle Request ${slicedObj} has been sent</strong>. Click <a href='https://vrf.chain.link/sepolia/8512' target='_blank'>here</a> to check the status of the request.`;
 				loadingWheel.innerHTML = loader;
 			}
+			else if (num == 12){
+				title.innerHTML = "Ether Requested...";
+				body.innerHTML = `You have entered your address correctly into the terminal. This machine is now processing your request...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 13){
+				title.innerHTML = "Ether Sending...";
+				var slicedObj = data.slice(0, 10);
+				slicedObj += "...";
+				body.innerHTML = `Your ETHER request has been approved and the ETHER has been sent. The transaction is mining. View the transaction here: <a href='https://sepolia.arbiscan.io/tx/${data}' target='_blank'>${slicedObj}</a>. `;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 14){
+				title.innerHTML = "Transaction Mined!";
+				body.innerHTML = `Your test Ether should now be in your wallet on the Arbitrum Sepolia network!`;
+				loadingWheel.innerHTML = loaded;
+				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 15){
+				title.innerHTML = "Buying Blue Key...";
+				var slicedObj = data.slice(0, 10);
+				slicedObj += "...";
+				body.innerHTML = `Your request to purchase Blue Key token has been sent. The transaction is mining. View the transaction here: <a href='https://sepolia.arbiscan.io/tx/${data}' target='_blank'>${slicedObj}</a>. `;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 16){
+				title.innerHTML = "Blue Key Purchased!";
+				body.innerHTML = `Your <strong>Blue Key token</strong> should now be in your wallet!`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 17){
+				title.innerHTML = "Approving Blue Key Spend...";
+				body.innerHTML = `You are giving a contract approval to spend your Blue Key token on your behalf. This is necessary to send your token to the contract.`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 18){
+				title.innerHTML = "Blue Key Spend Approved!";
+				body.innerHTML = `Approval successful! The contract can now spend your <strong>Blue Key token</strong>.`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox(18)", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 19){
+				title.innerHTML = "Transferring Blue Key Token...";
+				body.innerHTML = `You are sending your Blue Key token to the holder contract. You have already granted the allowance. Now you are sending the token to the contract...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 20){
+				title.innerHTML = "Blue Key Token Transferred!";
+				body.innerHTML = `Your Blue Key token is now held by the smart contract.`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox(20)", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 21){
+				title.innerHTML = "Attempting to Withdraw Blue Key Token...";
+				body.innerHTML = `You are attempting to withdraw your Blue Key token from the holder contract. Your transaction is waiting to be mined (included in a block)...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 22){
+				title.innerHTML = "Blue Key Token Withdrawn!";
+				body.innerHTML = `You have successfully withdrawn your Blue Key token from the holding contract.`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox(22)", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 23){
+				title.innerHTML = "Submitting Transaction to Mint Graduation Gift Token...";
+				var slicedObj = data.slice(0, 10);
+				slicedObj += "...";
+				body.innerHTML = `You are attempting to mint a token redeemable for your graduation gift. Your transaction (<a href='https://sepolia.arbiscan.io/tx/${data}' target='_blank'>${slicedObj}</a>) is waiting to be mined (included in a block)...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 24){
+				title.innerHTML = "Token Mint Successful!";
+				body.innerHTML = `You have minted a token redeemable for your graduation gift!`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 25){
+				title.innerHTML = "Approving Token Transfer";
+				body.innerHTML = `You are granting the Graduation Gift NFT minter permission to spend your Graduation Gift token. Your transaction is waiting to be mined...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 26){
+				title.innerHTML = "Permission Granted!";
+				body.innerHTML = `You have granted permission for the NFT minter to spend your Graduation Gift token. Next you will sign a request to transfer the token...`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound1();
+			}
+			else if (num == 27){
+				title.innerHTML = "Initiating Graduation Gift Redemption";
+				body.innerHTML = `You are transferring your Graduation Gift token to the NFT minting contract. The contract will use a Chainlink VRF request to determine your unique graduation gift...`;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 28){
+				title.innerHTML = "Transaction Mined!";
+				body.innerHTML = `Chainlink VRF request is currently determining your unique graduation gift. Congratulations on making it!`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound1();
+				miningBoxActive = 28;
+			}
+			else if (num == 29){
+				title.innerHTML = "Graduation Gift Minted!";
+				body.innerHTML = `A Chainlink VRF request has determined your gift. You have received a ${graduationGiftDescription} Congratulations again on your graduation. Through that last door is the wide world of Web3.`;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				setTimeout("closeMiningBoxBox(29)", 5000); //Close mining box after 5 seconds.
+			}
+			
 		}
 	</script>
