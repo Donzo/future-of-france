@@ -3,6 +3,7 @@
 	var providerName = false;
 	var miningCheckInt = false;
 	var checkCount = 0;
+	var onWhich = false;
 	
 	function loginUser(accountNumber, level) { //Called From Wallet-Connect Script
 		fetch('/code/php/login-new-game.php', {
@@ -62,7 +63,17 @@
 					ig.game.madeItToLvl = data.data.last_level_passed + 1;
 					ig.game.tokenData.totalTokensFound = data.data.total_coins_found; //Set total coins found
 					ig.game.tokenData.tokensHeld = data.data.coins_held; //Set coins held
-					ig.game.playMusicBro(1);
+					
+					if (data.data.current_level == 8){
+						ig.game.playMusicBro(5);	
+					}
+					else if (data.data.current_level > 8){
+						ig.game.playMusicBro(3);
+					}
+					else{
+						ig.game.playMusicBro(1);	
+					}
+					
 					ig.game.fadeOut(0, "#F8F8FF");
 					ig.game.transitionReady = false;
 				}
@@ -119,6 +130,45 @@
 			console.error('Error:', error);
 		});
 	}
+	async function fetchCommissionerTask() {
+		try {
+			const response = await fetch(`/code/php/check-commissioner.php?wallet=${window['userAccountNumber']}`);
+			const data = await response.json();
+			//console.log(data);
+			if (response.ok) {
+				return data.commissioner_task;
+			}
+			else {
+				throw new Error(data.message || "Failed to fetch commissioner task");
+			}
+		}
+		catch (error) {
+			console.error("Error fetching commissioner task:", error);
+		}
+	}
+	async function updateCommissionerTask(taskValue) {
+		try {
+			const response = await fetch('/code/php/update-commissioner.php', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: `wallet=${encodeURIComponent(window['userAccountNumber'])}&task=${taskValue}`
+			});
+			const data = await response.json();
+			console.log(data); // Logging the response data to the console
+			if (response.ok) {
+				return data.message; // Assuming the PHP script returns a message in the JSON
+			}
+			else {
+				throw new Error(data.message || "Failed to update commissioner task");
+			}
+		}
+		catch (error) {
+			console.error("Error updating commissioner task:", error);
+		}
+	}
+
 	async function ethCheckHere(){
 			//Create Web3 Object
 			let web3 = new Web3(Web3.givenProvider);
@@ -153,10 +203,89 @@
 				console.error('Error checking ether balance:', error);
 			}
 	}
+	/*8 decimals*/
+	function processNumberForContract(num){
+		var numParts = num.toString().split('.');
+
+		var zerosToAdd;
+
+		if (!numParts[1]) {
+			zerosToAdd = 8;
+		}
+		else if (numParts[1].length === 1) {
+			num = num * 10;
+			zerosToAdd = 7;
+		}
+		else{
+			num = Math.floor(num * 100) / 100;
+			zerosToAdd = 6;
+		}
+		if (numParts[1]) {
+			var noDecimal = Math.floor(num * 100);
+			num = noDecimal;
+		}
+		var addedZeros = num * Math.pow(10, zerosToAdd);
+
+		var resultStr = addedZeros.toString();
+		return resultStr;
+	}
+
+	//Turn 8 decimal smart contract returned values back into human readable money values
+	function processNumberForDisplay(num){
+		if (isNaN(num)){
+			console.error("Invalid input: not a number");
+			return null;
+		}
+
+		var numStr = num.toString();
+
+		var requiredLength = numStr.length >= 8 ? numStr.length : 8;
+		numStr = numStr.padStart(requiredLength, '0');
+		var decimalPosition = numStr.length - 8;
+		var withDecimal = numStr.slice(0, decimalPosition) + "." + numStr.slice(decimalPosition);
+
+		var number = parseFloat(withDecimal);
+		var formattedNumber;
+
+		if (number <= 0.01){
+			formattedNumber = number.toString();
+		}
+		else{
+			formattedNumber = number.toFixed(2);
+		}
+		return formattedNumber;
+	}
+	function makeRegularNumberHave18DecimalPlaces(num){
+		var numParts = num.toString().split('.');
+	
+		var zerosToAdd;
+		if (!numParts[1]){
+			num = num * 100;
+			zerosToAdd = 16;
+		}
+		else if (numParts[1].length === 1){
+			num = num * 10;
+			zerosToAdd = 17;
+		}
+		else{
+			num = Math.floor(num * 100) / 100;
+			zerosToAdd = 16;
+		}
+
+		var noDecimal = Math.floor(num * 100);
+		var addedZeros = noDecimal * Math.pow(10, zerosToAdd);
+
+		var resultStr = addedZeros.toString();
+		//resultStr = resultStr.split('.').join("");
+		return resultStr;
+	}
+	function markCharChange(){
+		ig.game.charChange = true;
+	}
 	async function requestTestETH(which){
 		var whichETHscript = false;
-		
-		if (ig.game.playersEnteredAddress != window['userAccountNumber'].toLowerCase()){
+		onWhich = which;
+		if (which == 1 && ig.game.playersEnteredAddress != window['userAccountNumber'].toLowerCase()){
 			popAlert(13, false); //Havent entered address
 			return;
 		}
@@ -165,6 +294,10 @@
 			popMiningBox(12,  "0x0x0x0x0x0x")
 			whichETHscript = '/code/php/send-arbi-sepolia-eth.php?wallet=' + window['userAccountNumber'];
 		}
+		else if (which == 2){
+			popMiningBox(30,  "0x0x0x0x0x0x")
+			whichETHscript = '/code/php/send-sepolia-eth.php?wallet=' + window['userAccountNumber'];
+		}
 		fetch(whichETHscript)
 		.then(response => response.json())
 		.then(data => {
@@ -172,16 +305,25 @@
 					console.log('Transaction Hash:', data.hash);
 					console.log('message:', data.message);
 					ig.game.playSuccessSound1();
-					popMiningBox(13, data.hash)
-					miningCheckInt = setInterval(checkTransactionMined, 3000, data.hash, 1);
-					checkCount = 0;
-					//Handle successful transaction here
-					//{"success":true,"message":"Transaction successful and database updated!","hash":"0xbb2d532eb449a65028f16f8ee15b2c26f6c4c21b700b55fba2a8e1097ae706bd"}
-
+					if (onWhich == 2){
+						popMiningBox(31, data.hash)
+						miningCheckInt = setInterval(checkTransactionMined, 3000, data.hash, 2);
+						checkCount = 0;
+					}
+					else if (onWhich == 1) {
+						popMiningBox(13, data.hash);
+						miningCheckInt = setInterval(checkTransactionMined, 3000, data.hash, 1);
+						checkCount = 0;
+					}
 			}
 			else{
 				closeMiningBoxBox();
-				popAlert(14);
+				if (onWhich == 2){
+					popMiningBox(32, data.hash)
+				}
+				else{
+					popAlert(14);
+				}
 				console.error('Error:', data.message);
 			}
 		})
@@ -189,6 +331,7 @@
 				console.error('Fetch error:', error);
 		});
 	}
+	
 	function collectCoin(coinNumber) {
 		if (!window['userAccountNumber']){
 			return
@@ -474,6 +617,39 @@
 					ig.game.playAlertSound();
   				}
   			}
+  			else if (when == 14){ //Deposit ETH in Aave
+  				if (which == providerName){
+  					ig.game.inspObjTxt = "Looking up your AAVE account...";
+					ig.game.promptBoxOpen = false;
+					ig.game.objBoxOpen = true;
+					ig.game.playSuccessSound1();
+					getUserMaxCredit();
+  				}
+  				else{
+  					ig.game.inspObjTxt = "You are not on the " + which + " network. Change networks and try again if you'd like.";
+					ig.game.promptBoxOpen = false;
+					ig.game.objBoxOpen = true;
+					ig.game.playAlertSound();
+  				}
+  			}
+  			else if (when == 15){ //Mint Blue Tokens
+  				if (which == providerName){
+  					ig.game.inspObjTxt = "Checking your token balance...";
+					ig.game.promptBoxOpen = false;
+					ig.game.objBoxOpen = true;
+					ig.game.playSuccessSound1();
+					mintBlueTokens();
+  				}
+  				else{
+  					ig.game.inspObjTxt = "You are not on the " + which + " network. Change networks and try again if you'd like.";
+					ig.game.promptBoxOpen = false;
+					ig.game.objBoxOpen = true;
+					ig.game.playAlertSound();
+  				}
+  			}
+		}
+		function mintBlueTokens(){
+			alert('lets mint!');
 		}
 		async function getSignature(){
 
@@ -524,16 +700,18 @@
 			try {
 				const receipt = await web3.eth.getTransactionReceipt(transactionHash);
 				if (receipt) {
+					clearInterval(miningCheckInt); // Stop the interval
 					if (receipt.status === true) {
 						console.log('Transaction has been mined and was successful:', receipt);
 						if (where == 1){
-							popMiningBox(14,  "0x0x0x0x0x0x")
+							popMiningBox(14,  "0x0x0x0x0x0x");
 						}
-						clearInterval(miningCheckInt); 
+						else if (where == 2){
+							popMiningBox(32,  "0x0x0x0x0x0x");
+						}
 					}
 					else {
 						console.log('Transaction has been mined but failed:', receipt);
-						clearInterval(miningCheckInt); 
 						popAlert(15);
 					}
 				}

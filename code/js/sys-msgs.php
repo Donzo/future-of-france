@@ -81,6 +81,24 @@
 				//Add Sepolia
 				switchNetwork(9);
 			}
+			else if (which == 5){
+				popInputBox(1); //Post collateral
+			}
+			else if (which == 6){
+				popAlert(7); //Do not Post collateral
+			}
+			else if (which == 7){
+				approveBorrowingDelegation(); //Delegate Credit to Game Contract
+			}
+			else if (which == 8){
+				popAlert(8); ///Do not delegate credit
+			}
+			else if (which == 9){
+				joinGame(); //Join Game
+			}
+			else if (which == 10){
+				popAlert(9); //Do not Post collateral
+			}
 			ig.game.playClickSound1();
 			unpauseGame();
 		}
@@ -135,6 +153,14 @@
 			document.getElementById("sysMsgBoxBG").style.display = "none";
 			document.getElementById("miningInfoBox").style.display = "none";
 			unpauseGame();
+			if (which == 1){
+				//Proceed to Step 2 - Check to see contract has been delegated appropriate amount
+				getUserDelgationAmount();
+			}
+			if (which == 2){
+				//Proceed to Step 3 - Send GHO!
+				sendGHOAcrossChain();
+			}
 			if (which == 18){
 				ig.game.openThisDoor = 8; // Open Door 8
 				ig.game.killThisObject = true; // Kill Terminal Interaction Object
@@ -229,7 +255,7 @@
 			//Dont Delegate
 			else if (num == 8){
 				title.innerHTML = "Denied Delegating Credit";
-				body.innerHTML = "Ok well you cannot join this game until you have delegated sufficient borrowing power to the game contract.";
+				body.innerHTML = "Ok, well you cannot complete this mission until you have delegated sufficient borrowing power to the game contract.";
 			}
 			//Dont join
 			else if (num == 9){
@@ -321,12 +347,12 @@
 			}
 			else if (num == 4){
 				title.innerHTML = "Add Collateral?";
-				body.innerHTML = `<strong>You do not have sufficient collateral</strong> in the Aave protocol to cover the transaction costs in the event that you lose the game. Would you like to <strong>deposit some ETH</strong>?`;
+				body.innerHTML = `<strong>You do not have sufficient collateral</strong> in the Aave protocol to borrow GHO. Would you like to <strong>deposit some ETH</strong>?`;
 				button.innerHTML = `<button class='button sysMsgButton' onclick="closeConfirm(5)">Yes</button><button class='button sysMsgButton' onclick="closeConfirm(6)">No</button>`;
 			}
 			else if (num == 5){
 				title.innerHTML = "Delegate Credit?";
-				body.innerHTML = `You must <strong>delegate credit to the game contract</strong> to cover the transaction value in the event that you lose the game. Would you like to <strong>delegate credit now</strong>?`;
+				body.innerHTML = `You must <strong>delegate credit to the game contract so that it may borrow GHO against your credit on AAVE</strong>. Would you like to <strong>delegate credit now</strong>?`;
 				button.innerHTML = `<button class='button sysMsgButton' onclick="closeConfirm(7)">Yes</button><button class='button sysMsgButton' onclick="closeConfirm(8)">No</button>`;
 			}
 			else if (num == 6){
@@ -344,10 +370,10 @@
 		
 			if (which == 1){
 				title.innerHTML = "Deposit ETH";
-				body.innerHTML = `<strong>How much ETH</strong> would you like to <strong>deposit</strong> into the <strong>AAVE</strong> lending pool?`;
+				body.innerHTML = `<strong>How much ETH</strong> would you like to <strong>deposit</strong> into the <strong>AAVE</strong> lending pool? We recommend .05`;
 				button.innerHTML = `
 					<div id="eth-input-field">
-						<input id="eth-input" class="input-field" type="number" min="0.01" step="0.01" max="99999999" value="0.10" />
+						<input id="eth-input" class="input-field" type="number" min="0.01" step="0.01" max="99999999" value="0.05" />
 					</div>
 					<div id="eth-submit-button">
 						<button class='button sysMsgButton' onclick="closeInputBox(1)">OK</button>
@@ -383,27 +409,29 @@
 			var loader = `<img src="/images/loading.gif"/>`
 			var loaded = `<img src="/images/check-mark.gif"/>`
 			if (num == 1){
-				title.innerHTML = "Initializing Game Settings";
+				title.innerHTML = "Borrowing GHO and Sending it Across Chain";
 				var slicedObj = data.slice(0, 10);
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data;
-				body.innerHTML = `You are now setting up the game. The game contract will hold the <strong>number of players</strong>, the <strong>value</strong> of the game, and the destination <strong>address of the payment</strong>. <br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
+				body.innerHTML = `You are borrowing GHO from AAVE and using CCIP to send it from Ethereum Sepolia to Arbitrum Sepolia...<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
 				loadingWheel.innerHTML = loader;
 			}
 			else if (num == 2){
 				var slicedObj = data.blockHash.slice(0, 10);
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data.blockHash;
-				title.innerHTML = "Game Settings Initialized";
-				body.innerHTML = `This game has now been created.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> SUCCESSFULLY MINED!`;
+				title.innerHTML = "GHO Sent Across Chain!";
+				body.innerHTML = `You've just used CCIP, AAVE, and GHO. Congratulations! This transaction <a href='${link}' target='_blank'>${slicedObj}</a> SUCCESSFULLY MINED!<br/><br/>Go tell the Commissioner.`;
 				loadingWheel.innerHTML = loaded;
+				updateCommissionerTask(3);
+				ig.game.playSuccessSound2();
 			}
 			else if (num == 3){
 				title.innerHTML = "Approving Credit Delegation";
 				var slicedObj = data.slice(0, 10);
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data;
-				body.innerHTML = `Game <strong>contract must be able to borrow $${transactionValue}</strong> against your collateral in the event you lose the game. You are approving this action.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
+				body.innerHTML = `Game <strong>contract must be able to borrow $${transactionValue}</strong> against your collateral in AAVE. You are approving this action.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
 				loadingWheel.innerHTML = loader;
 			}
 			else if (num == 4){
@@ -411,8 +439,9 @@
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data.blockHash;
 				title.innerHTML = "Credit Delegation Successful!";
-				body.innerHTML = `Transaction <a href='${link}' target='_blank'>${slicedObj}</a> successfully mined!<br/><br/>You have <strong>delegated your borrowing power</strong> to the game contract. You are ready to play the game.`;
+				body.innerHTML = `Transaction <a href='${link}' target='_blank'>${slicedObj}</a> successfully mined!<br/><br/>You have <strong>delegated your borrowing power</strong> to the game contract. You are ready to send GHO across chain!`;
 				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound1();
 			}
 			else if (num == 5){
 				title.innerHTML = "Joining Game";
@@ -439,7 +468,7 @@
 				var slicedObj = data.slice(0, 10);
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data;
-				body.innerHTML = `You are now <strong>depositing collateral</strong> to AAVE. You are required to have sufficient collateral to cover the transaction amount in the event that you lose the game.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
+				body.innerHTML = `You are now <strong>depositing collateral</strong> to AAVE so that you may borrow GHO.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> is mining.`;
 				loadingWheel.innerHTML = loader;
 			}
 			else if (num == 8){
@@ -447,8 +476,9 @@
 				slicedObj += "...";
 				var link = "https://sepolia.etherscan.io/tx/" + data.blockHash;
 				title.innerHTML = "Collateral Deposited!";
-				body.innerHTML = `You have <strong>deposited collateral</strong> to AAVE. You may now <strong>try to join the game again</strong>.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> successfully mined!`;
+				body.innerHTML = `You have <strong>deposited collateral</strong> to AAVE.<br/><br/>Transaction <a href='${link}' target='_blank'>${slicedObj}</a> successfully mined!`;
 				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound1();
 			}
 			else if (num == 9){
 				title.innerHTML = "Starting Game...";
@@ -583,6 +613,27 @@
 				loadingWheel.innerHTML = loaded;
 				ig.game.playSuccessSound2();
 				setTimeout("closeMiningBoxBox(29)", 5000); //Close mining box after 5 seconds.
+			}
+			else if (num == 30){
+				title.innerHTML = "Ether Requested...";
+				body.innerHTML = `The Commissioner believes that you're the right person for the job. A request to send Sepolia Test ETH to your wallet is being processed...`;
+				setTimeout("markCharChange()", 3000); //Check for Char Change.
+				setTimeout("markCharChange()", 6000); //Check for Char Change.
+				updateCommissionerTask(2);
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 31){
+				title.innerHTML = "Ether Sending...";
+				var slicedObj = data.slice(0, 10);
+				slicedObj += "...";
+				body.innerHTML = `The Commissioner's ETHER request has been approved and the ETHER has been sent. The transaction is mining. View the transaction here: <a href='https://sepolia.etherscan.io/tx/${data}' target='_blank'>${slicedObj}</a>. `;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 32){
+				title.innerHTML = "Transaction Mined!";
+				body.innerHTML = `Your test Ether should now be in your wallet on the Ethereum Sepolia network!`;
+				loadingWheel.innerHTML = loaded;
+				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
 			}
 			
 		}

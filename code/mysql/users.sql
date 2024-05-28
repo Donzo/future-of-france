@@ -8,5 +8,7 @@ CREATE TABLE users(
 	arbi_test_eth_sent BOOLEAN DEFAULT FALSE,
 	graduation_gift_minted BOOLEAN DEFAULT FALSE,
 	gg_mint_requests TINYINT UNSIGNED DEFAULT 0,
+	sep_test_eth_sent BOOLEAN DEFAULT FALSE,
+	commissioner_task TINYINT UNSIGNED DEFAULT 1,
 	PRIMARY KEY (account)
 );

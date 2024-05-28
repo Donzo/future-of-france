@@ -18,7 +18,7 @@
 
 		// Build the chat array
 		$chat = $open_ai->chat([
-			'model' => 'gpt-3.5-turbo',
+			'model' => 'gpt-4o', //upgrade the bots
 			'messages' => [
 				[
 					"role" => "system",
