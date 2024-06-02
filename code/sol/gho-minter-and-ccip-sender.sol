@@ -80,7 +80,7 @@ contract FOF_GHOSender is ConfirmedOwner{
 	function readyPlayer() internal{
 		//Verify Borrowing Power
 		uint256 borrowPower = checkBorrowingPower(msg.sender);
-		require(borrowPower > game_value, "Insufficent borrowing power. You must post more collateral to play this game.");
+		require(borrowPower > game_value, "Insufficent borrowing power. You must post more collateral to make this transaction.");
 		uint256 borrowAllow = aGhoTkn.borrowAllowance(msg.sender,address(this));
 		require(borrowAllow >= scaled_value, "You must delegate more credit to the game contract.");
         borrowAndSendTokens();

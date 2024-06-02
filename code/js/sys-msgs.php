@@ -141,13 +141,8 @@
 			document.getElementById("sysMsgBoxBG").style.display = "block";
 			document.getElementById("miningInfoBox").style.display = "block";
 		}
-		function delayCloseMiningBoxBox(which){
-			if (which == 1 && miningBoxActive == 28){
-				document.getElementById("sysMsgBoxBG").style.display = "none";
-				document.getElementById("miningInfoBox").style.display = "none";
-				unpauseGame();
-				miningBoxActive = false;
-			}
+		function delayCloseMiningBoxBox(){
+			closeMiningBoxBox();
 		}
 		function closeMiningBoxBox(which){
 			document.getElementById("sysMsgBoxBG").style.display = "none";
@@ -633,6 +628,21 @@
 				title.innerHTML = "Transaction Mined!";
 				body.innerHTML = `Your test Ether should now be in your wallet on the Ethereum Sepolia network!`;
 				loadingWheel.innerHTML = loaded;
+				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
+			}
+			else if (num == 33){
+				title.innerHTML = "Blue Coin Tokens Minting...";
+				var slicedObj = data.slice(0, 10);
+				slicedObj += "...";
+				body.innerHTML = `Your transaction is mining. View the transaction here: <a href='https://sepolia.arbiscan.io/tx/${data}' target='_blank'>${slicedObj}</a>. `;
+				loadingWheel.innerHTML = loader;
+			}
+			else if (num == 34){
+				title.innerHTML = "Blue Coin Tokens Minted!";
+				body.innerHTML = `Your Blue Coin Tokens have been minted! Now go see the Commissioner. `;
+				loadingWheel.innerHTML = loaded;
+				ig.game.playSuccessSound2();
+				updateCommissionerTask(4);
 				setTimeout("closeMiningBoxBox()", 3000); //Close mining box after 3 seconds.
 			}
 			

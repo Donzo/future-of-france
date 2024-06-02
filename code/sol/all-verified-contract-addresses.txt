@@ -12,17 +12,23 @@ https://sepolia.arbiscan.io/address/0x4060ff3e9a8a5fb7e6e3f84c50767cbee8dd47b5#c
 FOFGraduationGiftNFTContract
 https://sepolia.arbiscan.io/address/0x0794cb70241a9d58fee484529dde714a9a3d2c6c#code
 
-FOFGraduationGiftMintCheckCLF
+FOFGraduationGiftMintCheckCLF - CL FUNCTIONS
 https://sepolia.arbiscan.io/address/0xf17dac41182523c3d73e133d55f271ee1dcf6042#code
 
 FOFGradGiftToken
 https://sepolia.arbiscan.io/token/0x0c9fc330cea25d16871d7bd3294d10dc9d23b2a6#code
 
-FOFGraduationGiftMinterVRF
+FOFGraduationGiftMinterVRF - VRF
 https://sepolia.arbiscan.io/address/0xe4991c16be94af92f6b39aa163dea37ab989d8ed#code
 
 FOF_GHOSender
 https://sepolia.etherscan.io/address/0x27bde4e675a081b125b4c9510c2591b8fe9c9c25#code
 
-CCIP_Token_Sender
+CCIP_Token_Sender - CCIP
 https://sepolia.etherscan.io/address/0xa1aF13F6db84ca2Dcf671B7D19F7ADf8fA0097e4#code
+
+Blue Coin Token
+https://sepolia.arbiscan.io/address/0x488df98082af001ac236efdf2a63e27aa25a0c14#code
+
+Blue Coin Token Minter - CL FUNCTIONS
+https://sepolia.arbiscan.io/address/0xd593a9d04e9567ea63c61ccc1919c9c270dc812b#code

@@ -4,6 +4,7 @@
 	var miningCheckInt = false;
 	var checkCount = 0;
 	var onWhich = false;
+	var blueCoinTokenMinterContractAddress = "0xd593A9D04E9567Ea63C61cCc1919C9c270Dc812B";
 	
 	function loginUser(accountNumber, level) { //Called From Wallet-Connect Script
 		fetch('/code/php/login-new-game.php', {
@@ -15,7 +16,6 @@
 		})
 		.then(response => response.json())
 		.then(data => {
-			console.log('Success:', data);
 			if (firstConnection){
 				ig.game.inspObjTxt = "You have successfully connected your wallet. Opening door...";
 			}
@@ -42,7 +42,6 @@
 		const accounts = await ethereum.request({ method: 'eth_accounts' });
 
 		if (accounts.length) {
-			console.log(`You're connected to: ${accounts[0]}`);
 			const account = accounts[0];
 			window['userAccountNumber'] = account;
 			fetchCollectedCoins(account);
@@ -104,6 +103,8 @@
 						ig.game.coinsFound[coin] = true;
 					}
 				}
+				//Set tokensHeld based on the response
+				ig.game.tokenData.tokensHeld = data.tokensHeld;
 			}
 			else {
 				console.error('Error:', data.message);
@@ -124,7 +125,7 @@
 		})
 		.then(response => response.json())
 		.then(data => {
-			console.log('Success:', data);
+			//console.log('Success:', data);
 		})
 		.catch((error) => {
 			console.error('Error:', error);
@@ -156,9 +157,9 @@
 				body: `wallet=${encodeURIComponent(window['userAccountNumber'])}&task=${taskValue}`
 			});
 			const data = await response.json();
-			console.log(data); // Logging the response data to the console
+			//console.log(data);
 			if (response.ok) {
-				return data.message; // Assuming the PHP script returns a message in the JSON
+				return data.message;
 			}
 			else {
 				throw new Error(data.message || "Failed to update commissioner task");
@@ -297,13 +298,12 @@
 		else if (which == 2){
 			popMiningBox(30,  "0x0x0x0x0x0x")
 			whichETHscript = '/code/php/send-sepolia-eth.php?wallet=' + window['userAccountNumber'];
+			setTimeout("delayCloseMiningBoxBox()", 30000); //Close mining box after 30 seconds.
 		}
 		fetch(whichETHscript)
 		.then(response => response.json())
 		.then(data => {
 			if (data.success) {
-					console.log('Transaction Hash:', data.hash);
-					console.log('message:', data.message);
 					ig.game.playSuccessSound1();
 					if (onWhich == 2){
 						popMiningBox(31, data.hash)
@@ -343,10 +343,10 @@
 			.then(response => response.json())
 			.then(data => {
 				if (data.status == "success") {
-					console.log('Message:', data.message);
+					//console.log('Message:', data.message);
 				}
 				else{
-					console.error('Error:', data.message);
+					//console.error('Error:', data.message);
 				}
 			})
 			.catch(error => {
@@ -411,7 +411,7 @@
   			else{
   				providerName = "unhandled network";
   			}
-  			console.log('which = ' + which + " providerName = " + providerName)
+  			//console.log('which = ' + which + " providerName = " + providerName)
   			if (when == 1){
   				if (which == providerName){
   					ig.game.inspObjTxt = "You are connected to the Ethereum Sepolia network. Opening door...";
@@ -648,8 +648,35 @@
   				}
   			}
 		}
-		function mintBlueTokens(){
-			alert('lets mint!');
+		function mintBlueTokens() {
+			// Create Web3 Object
+			let web3 = new Web3(Web3.givenProvider);
+
+			try{
+			    // Set up the contract using ABI and address
+			    const tokenContract = new web3.eth.Contract(abi12, blueCoinTokenMinterContractAddress);
+
+			    // Prepare the subscription ID and args array
+			    var subscriptionId = 62;
+			    var args = [window['userAccountNumber']]; //User's account address
+				var valueToSend = web3.utils.toWei('0.025', 'ether');
+				
+			    tokenContract.methods.checkAndMintBlueCoins(subscriptionId, args)
+			        .send({ 
+			        	from: window['userAccountNumber'],
+			        	value: valueToSend
+			        })
+			        .on('transactionHash', function (hash) {
+			            popMiningBox(33, hash);
+			            miningCheckInt = setInterval(checkTransactionMined, 3000, hash, 3);
+			        })
+			        .on('error', function (error) {
+			            console.error('Error minting blue coins:', error);
+			        });
+			}
+			catch (error) {
+			    console.error('Error setting up token contract:', error);
+			}
 		}
 		async function getSignature(){
 
@@ -682,7 +709,7 @@
 				return;
 			}
 			
-			console.log("mySignature = " + mySignature);
+			//console.log("mySignature = " + mySignature);
 			if (mySignature){
 				ig.game.playSuccessSound1();
 				window['signature'] = mySignature;
@@ -702,12 +729,16 @@
 				if (receipt) {
 					clearInterval(miningCheckInt); // Stop the interval
 					if (receipt.status === true) {
-						console.log('Transaction has been mined and was successful:', receipt);
+						//console.log('Transaction has been mined and was successful:', receipt);
 						if (where == 1){
 							popMiningBox(14,  "0x0x0x0x0x0x");
 						}
 						else if (where == 2){
-							popMiningBox(32,  "0x0x0x0x0x0x");
+							popMiningBox(32,  "0x0x0x0x0x0x"); //Got Test ETH for Sepolia
+						}
+						else if (where == 3){
+							popMiningBox(34, "0x0x0x0x0x0x"); //Minted Blue Coins
+							ig.game.charChange = true;
 						}
 					}
 					else {
@@ -716,7 +747,7 @@
 					}
 				}
 				else{
-					console.log('Transaction has not been mined yet');
+					//console.log('Transaction has not been mined yet');
 				}
 			}
 			catch (error) {

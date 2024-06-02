@@ -2,6 +2,7 @@ CREATE TABLE blue_coins(
 	account VARCHAR(50) NOT NULL UNIQUE,
 	total_coins_found INT DEFAULT 0,
     coins_held INT DEFAULT 0,
+    blue_coin_mint_requests TINYINT UNSIGNED DEFAULT 0,
 	c1 BOOLEAN DEFAULT FALSE,
 	c2 BOOLEAN DEFAULT FALSE,
 	c3 BOOLEAN DEFAULT FALSE,

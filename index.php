@@ -40,6 +40,11 @@
 		//System Messages HTML - Alert Boxes and Such
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/code/html/system-messages.php";
 		
+		//Custom Alert and Sys Message Boxes Called Like This:
+		//popAlert(1);
+		//popConfirm(1);
+		//popMiningBox(1, "0x0x0x0x0x0x")
+		//popInputBox(1);
 	?>	
 </body>
 <footer>	
@@ -52,10 +57,16 @@
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-05.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-06.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-07.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-08.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-09.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-10.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-11.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/abi-12.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/blue-key-token-functions.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/graduation-gift-functions.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/js.php');
 		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/sys-msgs.php');
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/code/js/aave-contract-functions.php');
 	?>
 </footer>
 </html>

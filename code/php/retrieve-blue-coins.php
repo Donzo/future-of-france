@@ -15,13 +15,22 @@
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			if ($result) {
+				// Check if reset conditions are met
+				if ($result['blue_coin_mint_requests'] > 0) {
+					// Reset blue_coin_mint_requests and coins_held
+					$updateSql = "UPDATE blue_coins SET blue_coin_mint_requests = 0, coins_held = 0 WHERE account = :account";
+					$updateStmt = $my_Db_Connection->prepare($updateSql);
+					$updateStmt->bindParam(':account', $account);
+					$updateStmt->execute();
+				}
 				$collectedCoins = [];
 				foreach ($result as $coin => $status) {
 					if ($status && $coin != 'account') { // Ensure we only take coin fields
 						$collectedCoins[$coin] = $status;
 					}
 				}
-				echo json_encode(["status" => "success", "collectedCoins" => $collectedCoins]);
+				
+				echo json_encode(["status" => "success", "collectedCoins" => $collectedCoins, "tokensHeld" => $result['coins_held']]);
 			}
 			else {
 				echo json_encode(["status" => "error", "message" => "No coin data found for the account."]);

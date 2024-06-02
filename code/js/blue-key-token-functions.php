@@ -11,8 +11,9 @@
 		var contract = new web3.eth.Contract(abi2, blueKeyVendorContractAddress, {});
 		
 		var accountBalance = await web3.eth.getBalance(window['userAccountNumber']);
-			var mintCostWei = web3.utils.toWei('0.005', 'ether'); //Converts 0.005 ETH to wei
-		if (accountBalance >= mintCostWei){
+		var mintCostWei = web3.utils.toWei('0.005', 'ether'); //Converts 0.005 ETH to wei		
+		
+		if (parseInt(accountBalance, 10) >= parseInt(mintCostWei, 10)){
 			
 			try{
 				await contract.methods.buyTokens().send({
@@ -53,14 +54,12 @@
 		try {
 			const currentAllowance = await tokenContract.methods.allowance(window['userAccountNumber'], spenderAddress).call();
 			if (new web3.utils.BN(currentAllowance).gte(new web3.utils.BN(amountToApprove))) {
-				console.log('Already approved');
 				ig.game.inspObjTxt = "Blue Key token spend already approved. Door opening...";
 				ig.game.openThisDoor = 8; // Open Door 8
 				ig.game.killThisObject = true; // Kill Terminal Interaction Object
 				ig.game.playSuccessSound1();
 			}
 			else {
-				console.log('Approving now...');
 				popMiningBox(17, "0x0x0x0x");
 				ig.game.inspObjTxt = "Approving now...";
 				ig.game.promptBoxOpen = false;
