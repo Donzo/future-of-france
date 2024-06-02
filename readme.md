@@ -57,7 +57,7 @@ The game utilizes several advanced Web3 technologies to enhance the gameplay exp
 - **PixelLab**: AI-powered extension for Aseprite to create pixel-art sprite sheets.
 
 
-## Contract Addresses
+## Verified Contracts
 
 **[FOFBlueKeyToken](https://sepolia.arbiscan.io/address/0xa7807EC6Ab2E1cB00F9f24E705c9805C6582aC37#code)**
 
